@@ -1,13 +1,29 @@
-dist: bionic
+#sudo: required
 
 language: python
 
-matrix:
-  include:
-    - python: 2.7
-      env: ENV_TEST=299792458
-          
+os:
+  - linux
+
+services:
+  - docker
+
+env:
+  - ENV_PG_VERSION=9.5
+
+before_install:
+  - docker network create --driver bridge --gateway 10.8.10.1 --subnet 10.8.10.0/24 travis-test-net
+  - docker run --detach --name travis-test-pg --network travis-test-net postgres:${PG_VERSION}
+
 install:
+  - docker exec --interactive travis-test-pg psql --command='CREATE DATABASE travis'
 
 script:
-  - python test.py
+  - docker run --interactive --rm --network travis-test-net --env PGHOST=travis-test-pg --env PGDATABASE=travis postgres:${PG_VERSION} psql --command="SELECT 1 f1"
+
+after_failure:
+  - docker logs --timestamps travis-test-pg
+
+after_success:
+
+after_script:
