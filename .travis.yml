@@ -16,7 +16,7 @@ before_install:
   - docker run --detach --name travis-test-pg --network travis-test-net postgres:${ENV_PG_VERSION}
 
 install:
-  - docker run --rm --interactive postgres:${ENV_PG_VERSION} psql --host=travis-test-pg --command='CREATE DATABASE travis'
+  - docker run --rm --interactive --network travis-test-net postgres:${ENV_PG_VERSION} psql --host=travis-test-pg --command='CREATE DATABASE travis'
 
 script:
   - docker run --interactive --rm --network travis-test-net --env PGHOST=travis-test-pg --env PGDATABASE=travis postgres:${PG_VERSION} psql --command="SELECT 1 f1"
