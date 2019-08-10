@@ -10,4 +10,4 @@ matrix:
 install:
 
 script:
-  - python main.py
+  - python test.py
