@@ -1,0 +1,13 @@
+dist: bionic
+
+language: python
+
+matrix:
+  include:
+    - python: 2.7
+      env: ENV_TEST=299792458
+          
+install:
+
+script:
+  - python main.py
