@@ -13,13 +13,15 @@ env:
 
 before_install:
   - docker network create --driver bridge --gateway 10.8.10.1 --subnet 10.8.10.0/24 travis-test-net
+  - docker pull postgres:${ENV_PG_VERSION}
   - docker run --detach --name travis-test-pg --network travis-test-net postgres:${ENV_PG_VERSION}
+  - docker ps --all
 
-install:
-  - docker logs --timestamps --tail 16 travis-test-pg
-  - docker run --rm --interactive --network travis-test-net postgres:${ENV_PG_VERSION} psql --host=travis-test-pg --command='CREATE DATABASE travis'
+#before_script:
 
 script:
+  - docker logs --timestamps --tail 16 travis-test-pg
+  - docker run --rm --interactive --network travis-test-net postgres:${ENV_PG_VERSION} psql --host=travis-test-pg --command='CREATE DATABASE travis'
   - docker run --interactive --rm --network travis-test-net --env PGHOST=travis-test-pg --env PGDATABASE=travis postgres:${PG_VERSION} psql --command="SELECT 1 f1"
 
 after_failure:
