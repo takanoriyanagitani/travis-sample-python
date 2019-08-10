@@ -24,7 +24,7 @@ before_script:
 script:
   - docker logs --timestamps --tail 16 travis-test-pg
   - docker run --rm --interactive --network travis-test-net --env PGHOST=travis-test-pg --env PGUSER=postgres postgres:${ENV_PG_VERSION} psql --command='CREATE DATABASE travis'
-  - docker run --interactive --rm --network travis-test-net --env PGHOST=travis-test-pg --env PGUSER=postgres --env PGDATABASE=travis postgres:${PG_VERSION} psql --command="SELECT 1 f1"
+  - docker run --interactive --rm --network travis-test-net --env PGHOST=travis-test-pg --env PGUSER=postgres --env PGDATABASE=travis postgres:${ENV_PG_VERSION} psql --command="SELECT 1 f1"
 
 after_failure:
   - docker logs --timestamps travis-test-pg
