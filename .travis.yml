@@ -9,22 +9,24 @@ services:
   - docker
 
 env:
-  - ENV_PG_VERSION=9.5
+  - ENV_WAIT_SECONDS=5
+  - ENV_VERSION=2019.0811.1013
 
 before_install:
   - docker network create --driver bridge --gateway 10.8.10.1 --subnet 10.8.10.0/24 travis-test-net
-  - docker pull postgres:${ENV_PG_VERSION}
-  - docker run --detach --name travis-test-pg --network travis-test-net postgres:${ENV_PG_VERSION}
-  - docker ps --all
+  - docker pull postgres:9.5.6
+  - docker run --detach --name travis-test-pg --network travis-test-net postgres:9.5.6
+  - docker pull node:6.9.5
+  - docker build --tag node-with-psql:${ENV_VERSION} --file node.with.psql.dockerfile .
 
 before_script:
   - echo sleeping...
-  - sleep 10
+  - sleep ${ENV_WAIT_SECONDS}
+  - docker logs --timestamps --tail 16 travis-test-pg
+  - docker run --rm --interactive --network travis-test-net --env PGHOST=travis-test-pg --env PGUSER=postgres postgres:9.5.6 psql --command='CREATE DATABASE travis'
 
 script:
-  - docker logs --timestamps --tail 16 travis-test-pg
-  - docker run --rm --interactive --network travis-test-net --env PGHOST=travis-test-pg --env PGUSER=postgres postgres:${ENV_PG_VERSION} psql --command='CREATE DATABASE travis'
-  - docker run --interactive --rm --network travis-test-net --env PGHOST=travis-test-pg --env PGUSER=postgres --env PGDATABASE=travis postgres:${ENV_PG_VERSION} psql --command="SELECT 1 f1"
+  - docker run --interactive --rm --network travis-test-net --env PGHOST=travis-test-pg --env PGUSER=postgres --env PGDATABASE=travis node-with-psql:${ENV_VERSION} psql --command="SELECT 1 f1"
 
 after_failure:
   - docker logs --timestamps travis-test-pg
