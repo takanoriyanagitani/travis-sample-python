@@ -9,8 +9,7 @@ services:
   - docker
 
 env:
-  - ENV_WAIT_SECONDS=5
-  - ENV_VERSION=2019.0811.1013
+  - ENV_WAIT_SECONDS=5 ENV_VERSION=2019.0811.1013
 
 before_install:
   - docker network create --driver bridge --gateway 10.8.10.1 --subnet 10.8.10.0/24 travis-test-net
